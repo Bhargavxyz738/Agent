@@ -96,7 +96,7 @@ function addTaskManually() {
 
 // --- Chat & Gemini API ---
 
-const API_KEY = "YOUR_KEY"; // Placeholder
+const API_KEY = "YOUR_API"; // Placeholder
 
 let availableTasks = ""; // String to hold available task names and IDs
 
@@ -229,7 +229,7 @@ async function sendMessage() {
 function addUserMessage(message) {
     const chatArea = document.getElementById('chatArea');
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('bg-blue-100', 'rounded-lg', 'p-2', 'mb-2', 'self-end', 'mr-4', 'max-w-xs');
+    messageDiv.classList.add('bg-blue-100', 'rounded-lg', 'p-2', 'mb-2', 'self-start', 'ml-4', 'max-w-xs');
     messageDiv.textContent = message;
     chatArea.appendChild(messageDiv);
     document.getElementById('userInput').value = '';
@@ -239,7 +239,7 @@ function addUserMessage(message) {
 function addBotMessage(taskPerformed, response) {
     const chatArea = document.getElementById('chatArea');
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('bg-gray-200', 'rounded-lg', 'p-2', 'mb-2', 'self-start', 'ml-4', 'max-w-xs');
+    messageDiv.classList.add('bg-white', 'rounded-lg', 'p-2', 'mb-2', 'self-end', 'mr-4', 'max-w-xs');
     messageDiv.innerHTML = `<strong>${taskPerformed}</strong><br>${response}`;
     chatArea.appendChild(messageDiv);
     chatArea.scrollTop = chatArea.scrollHeight;
