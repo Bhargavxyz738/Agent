@@ -183,6 +183,13 @@ function addTaskManually() {
 
 // const API_KEY = "VALID_API_KEY_HERE"; // Removed hardcoded API key
 
+// Store the API endpoints for different models
+const API_ENDPOINTS = {
+    gemini: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
+    claude: "https://api.anthropic.com/v1/messages?key=",
+    openai: "https://api.openai.com/v1/chat/completions?key="
+};
+
 let availableTasks = "";
 
 function updateAvailableTasks() {
@@ -217,11 +224,16 @@ async function sendMessage() {
         return;
     }
 
+    const selectedModel = document.getElementById('aiModel').value; // Get selected model
+    const API_KEY = document.getElementById('apiKey').value;
+    const apiUrl = API_ENDPOINTS[selectedModel] + API_KEY; // Dynamically construct the API URL
+
+
     updateChatHistory("user", userInput);
     addUserMessage(userInput);
 
     // All instructions in the user prompt (no separate system role)
-    const prompt = `You are a task management assistant. Respond in JSON. Manage tasks (add, delete, edit, complete) based on user requests. Interact naturally with the user in the "response" field.
+    const prompt = `SYSTEM_PROMPT:- You are a task management AI Agent. Respond in JSON. Manage tasks (add, delete, edit, complete) based on user requests. Interact naturally with the user in the "response" field.
 
     JSON Format:
     \`\`\`json
@@ -232,7 +244,7 @@ async function sendMessage() {
             {"action": "edit", "id": 3, "name": "New Name"},
             {"action": "complete", "id": 1}
         ],
-        "response": "Confirmation message."
+        "response": "Confirmation message or normal natural text as you like."
     }
     \`\`\`
 
@@ -250,16 +262,19 @@ async function sendMessage() {
     *   if asked you can generate task randomly.
     *   You can now mark tasks as "complete" using the "complete" action.
     *   Tasks have a status of "completed" or "incomplete".
+    *   
     *   **IMPORTANT:** When answering questions about task completion, *always* check the "Status" of the tasks in the "Available Tasks" list. Do not assume a task is incomplete unless it explicitly says "Status: INCOMPLETE".
 
-    Available Tasks:\n${availableTasks}
-
+    Available Tasks in task list:-:\n${availableTasks}
+    ___
+    THIS IS THE CHAT HISTORY:-
     ${formatChatHistoryForPrompt()}
-
-    User: ${userInput}`;
+    ___
+    NEW MESSAGE:-
+    USER_PROMPT: ${userInput}`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -366,10 +381,6 @@ function editTaskPrompt(taskId) {
     }
 }
 
-function scrollToBottom() {
-    const chatArea = document.getElementById('chatArea');
-    chatArea.scrollTop = chatArea.scrollHeight;
-}
 // Initial tasks (for demonstration)
 addTask("Grocery Shopping", "🛒", "Buy milk, eggs, bread, and cheese", null, 'user');
 addTask("Book Doctor Appointment", "👨‍⚕️", "Schedule a check-up", null, 'user');
