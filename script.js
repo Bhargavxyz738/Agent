@@ -181,7 +181,7 @@ function addTaskManually() {
 
 // --- Chat & AI API ---
 
-const API_KEY = "VALID_API_KEY_HERE";
+// const API_KEY = "VALID_API_KEY_HERE"; // Removed hardcoded API key
 
 let availableTasks = "";
 
@@ -210,6 +210,12 @@ function formatChatHistoryForPrompt() {
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) return;
+
+    const apiKey = document.getElementById('apiKey').value; // Get API key from input
+    if (!apiKey.trim()) {
+        alert("Please enter your API key.");
+        return;
+    }
 
     updateChatHistory("user", userInput);
     addUserMessage(userInput);
@@ -253,7 +259,7 @@ async function sendMessage() {
     User: ${userInput}`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -271,7 +277,7 @@ async function sendMessage() {
             addBotMessage("API Error", `The API returned an error: ${data.error.message}`);
             console.error("API Error:", data.error);
             return;
-          }
+        }
 
         const responseText = data.candidates[0].content.parts[0].text;
         let parsedResponse;
@@ -360,6 +366,10 @@ function editTaskPrompt(taskId) {
     }
 }
 
+function scrollToBottom() {
+    const chatArea = document.getElementById('chatArea');
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
 // Initial tasks (for demonstration)
 addTask("Grocery Shopping", "🛒", "Buy milk, eggs, bread, and cheese", null, 'user');
 addTask("Book Doctor Appointment", "👨‍⚕️", "Schedule a check-up", null, 'user');
