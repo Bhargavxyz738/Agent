@@ -106,7 +106,7 @@ function updateAvailableTasks() {
 
 function updateChatHistory(role, content) {
     chatHistory.push({ role, content });
-    if (chatHistory.length > 5) {
+    if (chatHistory.length > 10) {
         chatHistory.shift();
     }
 }
