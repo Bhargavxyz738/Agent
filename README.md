@@ -34,7 +34,7 @@ The application uses the Gemini API to process natural language input and genera
  ```Javascript
 const API_KEY = "VALID_API_KEY_HERE";
 ```
-
+Get your API key at https://aistudio.google.com/apikey
 
 ## Credits
 This application was created by [BHARGAV]
