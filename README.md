@@ -29,6 +29,12 @@ The application uses the Gemini API to process natural language input and genera
 4.  Use natural language commands to manage your tasks, such as "Add a task to buy groceries" or "Mark the 'Coding Project' task as complete".
 5.  Enjoy a more streamlined and productive workflow!
 
+## Usage Instructions
+ Replace the followin line from script.js with a valid API key.
+ ```Javascript
+const API_KEY = "VALID_API_KEY_HERE";
+```
+
 
 ## Credits
 This application was created by [BHARGAV]
