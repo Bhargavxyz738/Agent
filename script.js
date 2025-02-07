@@ -149,7 +149,8 @@ async function sendMessage() {
 
     *   If no task action: \`"task": []\`.
     *   ONLY the specified fields.
-    *   Be precise. Don't guess. If a task to delete/edit is ambiguous, ask for clarification.
+    *   if asked you can generate task randomly.
+    *   refer to the available task information provided to you whenever required.
     *   Respond appropriately to non-task-related questions.
 
     **Available Tasks:** ${availableTasks}
