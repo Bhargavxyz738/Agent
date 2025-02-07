@@ -332,7 +332,7 @@ async function sendMessage() {
                         const taskToComplete = TASKS.find(task => task.id === taskCommand.id);
                         if (taskToComplete) {
                             completeTask(taskCommand.id);
-                            taskPerformedMessage += `Marked Task "${taskToComplete.name}" (ID: ${taskCommand.id}) as ${taskToComplete.status}<br>`;
+                            taskPerformedMessage += `Updated status for "${taskToComplete.name}" (ID: ${taskCommand.id})`;
                         } else {
                             taskPerformedMessage += `Failed to complete Task (ID: ${taskCommand.id} - Not Found)<br>`;
                         }
