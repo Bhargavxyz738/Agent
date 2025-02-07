@@ -1,27 +1,46 @@
 let TASKS = [];
 let taskIdCounter = 1;
-let chatHistory = []; // Array to store chat history
+let chatHistory = []; 
 
 // --- Task Management Functions ---
 
-function addTask(name, emoji, description, id = null) {
+function addTask(name, emoji, description, id = null, source = 'user') { 
     const newTask = {
         id: id || taskIdCounter++,
         name: name,
         emoji: emoji,
         description: description,
-        completed: false
+        completed: false,
+        source: source  
     };
     TASKS.push(newTask);
     renderTasks();
-    updateAvailableTasks(); // Update available tasks after adding
+    updateAvailableTasks();
+
+    
+    const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${newTask.id})"])`); // Find the element by the new ID.
+    if (taskElement) {
+        taskElement.classList.add('ai-added');
+        setTimeout(() => {
+            taskElement.classList.remove('ai-added');
+        }, 3000);
+    }
+
     return newTask.id;
 }
 
 function deleteTask(id) {
-    TASKS = TASKS.filter(task => task.id !== id);
-    renderTasks();
-    updateAvailableTasks(); // Update available tasks after deleting
+    const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${id})"])`);
+     if(taskElement){
+         taskElement.classList.add('ai-deleted');
+         setTimeout(() => {
+            TASKS = TASKS.filter(task => task.id !== id); //do the filter here
+            renderTasks();
+            updateAvailableTasks();
+
+        }, 500); // Keep it very short for delete, just a flicker.
+     }
+
 }
 
 function editTask(id, newName, newEmoji, newDescription) {
@@ -33,8 +52,16 @@ function editTask(id, newName, newEmoji, newDescription) {
             emoji: newEmoji !== undefined ? newEmoji : TASKS[taskIndex].emoji,
             description: newDescription !== undefined ? newDescription : TASKS[taskIndex].description,
         };
+
         renderTasks();
-        updateAvailableTasks(); // Update available tasks after editing
+        updateAvailableTasks();
+        const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${id})"])`); // Find the element by the new ID.
+        if (taskElement) {
+        taskElement.classList.add('ai-edited'); // Add a class for styling.
+        setTimeout(() => {
+            taskElement.classList.remove('ai-edited'); // Remove the class after 3 seconds
+        }, 3000);
+    }
         return true;
     }
     return false;
@@ -47,7 +74,65 @@ function completeTask(id) {
         renderTasks();
     }
 }
+// --- UI Update Functions ---
 
+function addUserMessage(message) {
+    const chatArea = document.getElementById('chatArea');
+    const messageDiv = document.createElement('div');
+    // User messages on the RIGHT: self-end, ml-4 (margin-LEFT)
+    messageDiv.classList.add('bg-blue-100', 'rounded-lg', 'p-2', 'mb-2', 'self-end', 'ml-4', 'max-w-xs');
+    messageDiv.textContent = message;
+    chatArea.appendChild(messageDiv);
+    document.getElementById('userInput').value = '';
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function addBotMessage(taskPerformed, response) {
+    const chatArea = document.getElementById('chatArea');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('bg-white', 'rounded-lg', 'p-2', 'mb-2', 'self-start', 'mr-4', 'max-w-xs', 'md:max-w-md');
+
+    // Check if there are any task changes
+    if (taskPerformed.trim() !== "") {
+        // Create a unique ID for the collapsible content
+        const detailsId = `details-${Date.now()}`;
+
+        messageDiv.innerHTML = `
+            <div>
+                <button onclick="toggleDetails('${detailsId}')" class="text-blue-500 hover:text-blue-700 focus:outline-none">
+                    See changes made <i class="fas fa-chevron-down"></i>
+                </button>
+                <div id="${detailsId}" class="details-content hidden mt-2 border-l-4 border-gray-300 pl-2">
+                    ${taskPerformed}
+                </div>
+                <p class="mt-2">${response}</p> 
+            </div>
+        `;
+    } else {
+        // If no task changes, just display the response (without bold)
+        messageDiv.innerHTML = `<p>${response}</p>`; // Changed to <p>
+    }
+
+    chatArea.appendChild(messageDiv);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// Add this function to your script.js
+function toggleDetails(detailsId) {
+    const detailsElement = document.getElementById(detailsId);
+    if (detailsElement) {
+        detailsElement.classList.toggle('hidden');
+        // Optionally, change the button icon on toggle
+        const button = detailsElement.previousElementSibling; // Get the button
+         if (button && button.tagName === 'BUTTON') {
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            }
+        }
+    }
+}
 function renderTasks() {
     const taskListDiv = document.getElementById('taskList');
     taskListDiv.innerHTML = '';
@@ -55,13 +140,20 @@ function renderTasks() {
     TASKS.forEach(task => {
         const taskElement = document.createElement('div');
         taskElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow', 'flex', 'items-center', 'justify-between', 'group', 'relative');
+
+        // Add a class based on the source
+        if (task.source === 'ai') {
+            taskElement.classList.add('ai-task');
+        }
+
         taskElement.innerHTML = `
       <div class="flex items-center">
           <span class="text-2xl mr-2">${task.emoji}</span>
           <span class="${task.completed ? 'line-through' : ''}">${task.name}</span>
           <span class="ml-2 hidden group-hover:inline-block text-sm text-gray-500">${task.id}</span>
+          ${task.source === 'ai' ? '<span class="ml-2 text-sm text-blue-500"><i class="fas fa-robot"></i></span>' : ''}
       </div>
-      <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div class="task-buttons flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button onclick="showDescription(${task.id})" class="text-blue-500 hover:text-blue-700" title="Show Description"><i class="fas fa-info-circle"></i></button>
           <button onclick="editTaskPrompt(${task.id})" class="text-yellow-500 hover:text-yellow-700" title="Edit"><i class="fas fa-edit"></i></button>
           <button onclick="deleteTask(${task.id}); addBotMessage('Deleted Task', 'Task with ID ${task.id} was deleted')" class="text-red-500 hover:text-red-700" title="Delete"><i class="fas fa-trash"></i></button>
@@ -84,7 +176,8 @@ function addTaskManually() {
     if (taskName && taskEmoji) {
         const description = prompt("Please enter the description for this task:");
         if (description !== null) {
-            addTask(taskName, taskEmoji, description);
+            // Set source to 'user' for manual additions
+            addTask(taskName, taskEmoji, description, null, 'user');
             document.getElementById('taskName').value = '';
             document.getElementById('taskEmoji').value = '';
             addBotMessage("Added Task", `Task "${taskName}" added successfully`);
@@ -94,11 +187,11 @@ function addTaskManually() {
     }
 }
 
-// --- Chat & Gemini API ---
+// --- Chat & AI API ---
 
-const API_KEY = "YOUR_API"; // Placeholder
+const API_KEY = "API_KEY_HERE"; 
 
-let availableTasks = ""; // String to hold available task names and IDs
+let availableTasks = ""; 
 
 function updateAvailableTasks() {
     availableTasks = TASKS.map(task => `"${task.name}" (ID: ${task.id})`).join(', ');
@@ -117,13 +210,12 @@ async function sendMessage() {
 
     updateChatHistory("user", userInput);
     addUserMessage(userInput);
-
+    
     let historyPrompt = "";
     chatHistory.forEach(entry => {
         historyPrompt += `\n${entry.role}: ${entry.content}`;
     });
 
-    // Include available tasks in the prompt
     const prompt = `You are a task management assistant.  Respond in JSON.  Manage tasks (add, delete, edit) based on user requests. Interact naturally with the user in the "response" field.
 
     JSON Format:
@@ -161,7 +253,8 @@ async function sendMessage() {
     User: ${userInput}`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // Use your provided API key directly
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAyxaSyaMHXihnpWCpvhuQtVAdju5pXgLQ`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,61 +281,42 @@ async function sendMessage() {
             console.error("JSON parsing error:", error, responseText);
             return;
         }
-
         let taskPerformedMessage = "";
 
         if (parsedResponse.task && parsedResponse.task.length > 0) {
             parsedResponse.task.forEach(taskCommand => {
                 switch (taskCommand.action) {
                     case "add":
-                        const newId = addTask(taskCommand.name, taskCommand.emoji, taskCommand.description);
-                        taskPerformedMessage += `Added Task (ID: ${newId}). `;
+                        const newId = addTask(taskCommand.name, taskCommand.emoji, taskCommand.description, null, 'ai');
+                        taskPerformedMessage += `Added Task (ID: ${newId})<br>`; // Use <br> for newlines
                         break;
                     case "delete":
+                         const task = TASKS.find(task => task.id === taskCommand.id);
                         deleteTask(taskCommand.id);
-                        taskPerformedMessage += `Deleted Task (ID: ${taskCommand.id}). `;
+                         if (task) {
+                              taskPerformedMessage += `Deleted Task "${task.name}" (ID: ${taskCommand.id})<br>`; // Include task name and <br>
+                         }
                         break;
                     case "edit":
                         const success = editTask(taskCommand.id, taskCommand.name, taskCommand.emoji, taskCommand.description);
                         if (success) {
-                            taskPerformedMessage += `Edited Task (ID: ${taskCommand.id}). `;
+                            taskPerformedMessage += `Edited Task (ID: ${taskCommand.id})<br>`; // Use <br>
                         } else {
-                            taskPerformedMessage += `Failed to edit Task (ID: ${taskCommand.id} - Not Found). `;
+                            taskPerformedMessage += `Failed to edit Task (ID: ${taskCommand.id} - Not Found)<br>`; // Use <br>
                         }
                         break;
                 }
             });
         }
 
-        const botResponse = parsedResponse.response;
-        addBotMessage(taskPerformedMessage || "No task changes", botResponse);
+        let botResponse = parsedResponse.response;
+        addBotMessage(taskPerformedMessage, botResponse);
         updateChatHistory("bot", botResponse);
 
     } catch (error) {
         addBotMessage("Error", "Failed to communicate with the API.");
         console.error("API call error:", error);
     }
-}
-
-// --- UI Update Functions ---
-
-function addUserMessage(message) {
-    const chatArea = document.getElementById('chatArea');
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('bg-blue-100', 'rounded-lg', 'p-2', 'mb-2', 'self-start', 'ml-4', 'max-w-xs');
-    messageDiv.textContent = message;
-    chatArea.appendChild(messageDiv);
-    document.getElementById('userInput').value = '';
-    chatArea.scrollTop = chatArea.scrollHeight;
-}
-
-function addBotMessage(taskPerformed, response) {
-    const chatArea = document.getElementById('chatArea');
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('bg-white', 'rounded-lg', 'p-2', 'mb-2', 'self-end', 'mr-4', 'max-w-xs');
-    messageDiv.innerHTML = `<strong>${taskPerformed}</strong><br>${response}`;
-    chatArea.appendChild(messageDiv);
-    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 // --- Helper functions ---
@@ -272,10 +346,9 @@ function editTaskPrompt(taskId) {
     }
 }
 
-// --- Initial Setup ---
-addTask("Grocery Shopping", "🛒", "Buy milk, eggs, bread, and cheese");
-addTask("Book Doctor Appointment", "👨‍⚕️", "Schedule a check-up");
-addTask("Pay Bills", "💸", "Pay electricity and internet bills");
+addTask("Grocery Shopping", "🛒", "Buy milk, eggs, bread, and cheese", null, 'user');
+addTask("Book Doctor Appointment", "👨‍⚕️", "Schedule a check-up", null, 'user');
+addTask("Pay Bills", "💸", "Pay electricity and internet bills", null, 'user');
 renderTasks();
-updateAvailableTasks(); // Initialize available tasks
-addBotMessage("Welcome!", "How can I help you manage your tasks today?");
+updateAvailableTasks();
+addBotMessage("", "Welcome! How can I help you manage your tasks today?");
