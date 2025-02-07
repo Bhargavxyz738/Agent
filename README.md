@@ -18,12 +18,8 @@ The application uses the Gemini API to process natural language input and genera
 ## Technologies Used
 
 *   Large Language Model: Gemini API
-*   Programming Languages: JavaScript, [HTML/CSS (if applicable for the UI)]
-*   [Any other relevant libraries or frameworks]
+*   Programming Languages: JavaScript, [HTML/Tailwind CSS]
 
-## Installation (If applicable for a deployable application)
-
-[Include instructions on how to install and run the application]
 
 ## Usage
 
@@ -35,4 +31,4 @@ The application uses the Gemini API to process natural language input and genera
 
 
 ## Credits
-This application was created by [Your Name/Github Username]
+This application was created by [BHARGAV]
