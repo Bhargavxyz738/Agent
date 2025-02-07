@@ -10,7 +10,7 @@ function addTask(name, emoji, description, id = null, source = 'user') {
         name: name,
         emoji: emoji,
         description: description,
-        completed: false, // Keep for compatibility, but 'status' is the key
+        completed: false,
         source: source,
         status: 'incomplete'
     };
@@ -180,9 +180,6 @@ function addTaskManually() {
 }
 
 // --- Chat & AI API ---
-
-// const API_KEY = "VALID_API_KEY_HERE"; // Removed hardcoded API key
-
 // Store the API endpoints for different models
 const API_ENDPOINTS = {
     gemini: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
@@ -201,8 +198,8 @@ function updateAvailableTasks() {
 
 function updateChatHistory(role, content) {
     chatHistory.push({ role, content });
-    if (chatHistory.length > 10) {
-        chatHistory.shift(); // Limit history length
+    if (chatHistory.length > 12) {
+        chatHistory.shift();
     }
 }
 
@@ -218,21 +215,20 @@ async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) return;
 
-    const apiKey = document.getElementById('apiKey').value; // Get API key from input
+    const apiKey = document.getElementById('apiKey').value;
     if (!apiKey.trim()) {
         alert("Please enter your API key.");
         return;
     }
 
-    const selectedModel = document.getElementById('aiModel').value; // Get selected model
+    const selectedModel = document.getElementById('aiModel').value;
     const API_KEY = document.getElementById('apiKey').value;
-    const apiUrl = API_ENDPOINTS[selectedModel] + API_KEY; // Dynamically construct the API URL
+    const apiUrl = API_ENDPOINTS[selectedModel] + API_KEY; 
 
 
     updateChatHistory("user", userInput);
     addUserMessage(userInput);
-
-    // All instructions in the user prompt (no separate system role)
+    
     const prompt = `SYSTEM_PROMPT:- You are a task management AI Agent. Respond in JSON. Manage tasks (add, delete, edit, complete) based on user requests. Interact naturally with the user in the "response" field.
 
     JSON Format:
@@ -260,7 +256,7 @@ async function sendMessage() {
     *   If no task action: \`"task": []\`.
     *   ONLY the specified fields.
     *   if asked you can generate task randomly.
-    *   You can now mark tasks as "complete" using the "complete" action.
+    *   You can now mark tasks as "complete" using the "complete" action and to mark them as incomplete use the same action.
     *   Tasks have a status of "completed" or "incomplete".
     *   
     *   **IMPORTANT:** When answering questions about task completion, *always* check the "Status" of the tasks in the "Available Tasks" list. Do not assume a task is incomplete unless it explicitly says "Status: INCOMPLETE".
