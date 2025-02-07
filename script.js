@@ -151,7 +151,6 @@ function renderTasks() {
           <span class="text-2xl mr-2">${task.emoji}</span>
           <span class="${task.completed ? 'line-through' : ''}">${task.name}</span>
           <span class="ml-2 hidden group-hover:inline-block text-sm text-gray-500">${task.id}</span>
-          ${task.source === 'ai' ? '<span class="ml-2 text-sm text-blue-500"><i class="fas fa-robot"></i></span>' : ''}
       </div>
       <div class="task-buttons flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button onclick="showDescription(${task.id})" class="text-blue-500 hover:text-blue-700" title="Show Description"><i class="fas fa-info-circle"></i></button>
