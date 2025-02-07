@@ -30,7 +30,7 @@ The application uses the Gemini API to process natural language input and genera
 5.  Enjoy a more streamlined and productive workflow!
 
 ## Usage Instructions
- Replace the followin line from script.js with a valid API key.
+ Replace the following line from script.js with a valid API key.
  ```Javascript
 const API_KEY = "VALID_API_KEY_HERE";
 ```
