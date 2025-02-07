@@ -96,7 +96,7 @@ function addTaskManually() {
 
 // --- Chat & Gemini API ---
 
-const API_KEY = "AIzaSyCvOHMPI7BIq7NpvsQhZxY7A3yjTLev0h0"; // Placeholder
+const API_KEY = "YOUR_KEY"; // Placeholder
 
 let availableTasks = ""; // String to hold available task names and IDs
 
