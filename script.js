@@ -311,7 +311,7 @@ async function sendMessage() {
                 switch (taskCommand.action) {
                     case "add":
                         const newId = addTask(taskCommand.name, taskCommand.emoji, taskCommand.description, null, 'ai');
-                        taskPerformedMessage += `Added Task "${task.name}" (ID: ${newId})<br>`;
+                        taskPerformedMessage += `Added Task (ID: ${newId})<br>`;
                         break;
                     case "delete":
                         const task = TASKS.find(task => task.id === taskCommand.id);
