@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2025 Bhargav
+ * Licensed under the MIT License – see the LICENSE file for details.
+ */
+
 let TASKS = [];
 let taskIdCounter = 1;
 let chatHistory = [];
-
-// --- Task Management Functions ---
 
 function addTask(name, emoji, description, id = null, source = 'user') {
     const newTask = {
@@ -17,7 +20,6 @@ function addTask(name, emoji, description, id = null, source = 'user') {
     TASKS.push(newTask);
     renderTasks();
     updateAvailableTasks();
-
     const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${newTask.id})"])`);
     if (taskElement) {
         taskElement.classList.add('ai-added');
@@ -25,10 +27,8 @@ function addTask(name, emoji, description, id = null, source = 'user') {
             taskElement.classList.remove('ai-added');
         }, 3000);
     }
-
     return newTask.id;
 }
-
 function deleteTask(id) {
     const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${id})"])`);
     if (taskElement) {
@@ -40,7 +40,6 @@ function deleteTask(id) {
         }, 500);
     }
 }
-
 function editTask(id, newName, newEmoji, newDescription) {
     const taskIndex = TASKS.findIndex(task => task.id === id);
     if (taskIndex !== -1) {
@@ -50,7 +49,6 @@ function editTask(id, newName, newEmoji, newDescription) {
             emoji: newEmoji !== undefined ? newEmoji : TASKS[taskIndex].emoji,
             description: newDescription !== undefined ? newDescription : TASKS[taskIndex].description,
         };
-
         renderTasks();
         updateAvailableTasks();
         const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${id})"])`);
@@ -64,20 +62,15 @@ function editTask(id, newName, newEmoji, newDescription) {
     }
     return false;
 }
-
 function completeTask(id) {
     const task = TASKS.find(task => task.id === id);
     if (task) {
-        // Toggle status, and keep 'completed' in sync.
         task.status = task.status === 'completed' ? 'incomplete' : 'completed';
         task.completed = task.status === 'completed';
         renderTasks();
-        updateAvailableTasks(); // *** CRITICAL: Update AI's info immediately ***
+        updateAvailableTasks();
     }
 }
-
-// --- UI Update Functions ---
-
 function addUserMessage(message) {
     const chatArea = document.getElementById('chatArea');
     const messageDiv = document.createElement('div');
@@ -87,12 +80,10 @@ function addUserMessage(message) {
     document.getElementById('userInput').value = '';
     chatArea.scrollTop = chatArea.scrollHeight;
 }
-
 function addBotMessage(taskPerformed, response) {
     const chatArea = document.getElementById('chatArea');
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('bg-white', 'rounded-lg', 'p-2', 'mb-2', 'self-start', 'mr-4', 'max-w-xs', 'md:max-w-md');
-
     if (taskPerformed.trim() !== "") {
         const detailsId = `details-${Date.now()}`;
         messageDiv.innerHTML = `
@@ -109,11 +100,9 @@ function addBotMessage(taskPerformed, response) {
     } else {
         messageDiv.innerHTML = `<p>${response}</p>`;
     }
-
     chatArea.appendChild(messageDiv);
     chatArea.scrollTop = chatArea.scrollHeight;
 }
-
 function toggleDetails(detailsId) {
     const detailsElement = document.getElementById(detailsId);
     if (detailsElement) {
@@ -128,20 +117,15 @@ function toggleDetails(detailsId) {
         }
     }
 }
-
 function renderTasks() {
     const taskListDiv = document.getElementById('taskList');
     taskListDiv.innerHTML = '';
-
     TASKS.forEach(task => {
         const taskElement = document.createElement('div');
         taskElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow', 'flex', 'items-center', 'justify-between', 'group', 'relative');
-
         if (task.source === 'ai') {
             taskElement.classList.add('ai-task');
         }
-
-        // Use task.status for strikethrough and icon
         taskElement.innerHTML = `
             <div class="flex items-center">
                 <span class="text-2xl mr-2">${task.emoji}</span>
@@ -161,11 +145,9 @@ function renderTasks() {
         taskListDiv.appendChild(taskElement);
     });
 }
-
 function addTaskManually() {
     const taskName = document.getElementById('taskName').value;
     const taskEmoji = document.getElementById('taskEmoji').value;
-
     if (taskName && taskEmoji) {
         const description = prompt("Please enter the description for this task:");
         if (description !== null) {
@@ -178,9 +160,7 @@ function addTaskManually() {
         alert("Enter the emoji and the task name")
     }
 }
-
-// --- Chat & AI API ---
-// Store the API endpoints for different models
+// SORRY, CLAUDE AND OPENAI ENDPOINTS ARE PLACEHOLDER, REPLACE WITH ACTUAL ENDPOINT.
 const API_ENDPOINTS = {
     gemini: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
     claude: "https://api.anthropic.com/v1/messages?key=",
@@ -188,21 +168,17 @@ const API_ENDPOINTS = {
 };
 
 let availableTasks = "";
-
 function updateAvailableTasks() {
-    // Clear and informative format for the AI
     availableTasks = TASKS.map(task => {
         return `- ${task.name} (ID: ${task.id}) - Status: **${task.status.toUpperCase()}**`;
     }).join('\n');
 }
-
 function updateChatHistory(role, content) {
     chatHistory.push({ role, content });
     if (chatHistory.length > 12) {
         chatHistory.shift();
     }
 }
-
 function formatChatHistoryForPrompt() {
     let historyPrompt = "";
     chatHistory.forEach(entry => {
@@ -210,25 +186,19 @@ function formatChatHistoryForPrompt() {
     });
     return historyPrompt;
 }
-
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) return;
-
     const apiKey = document.getElementById('apiKey').value;
     if (!apiKey.trim()) {
         alert("Please enter your API key.");
         return;
     }
-
     const selectedModel = document.getElementById('aiModel').value;
     const API_KEY = document.getElementById('apiKey').value;
     const apiUrl = API_ENDPOINTS[selectedModel] + API_KEY; 
-
-
     updateChatHistory("user", userInput);
     addUserMessage(userInput);
-    
     const prompt = `SYSTEM_PROMPT:- You are a task management AI Agent. Respond in JSON. Manage tasks (add, delete, edit, complete) based on user requests. Interact naturally with the user in the "response" field.
 
     JSON Format:
@@ -282,17 +252,15 @@ async function sendMessage() {
                 }]
             })
         });
-
+        
         const data = await response.json();
         if (!response.ok) {
             addBotMessage("API Error", `The API returned an error: ${data.error.message}`);
             console.error("API Error:", data.error);
             return;
         }
-
         const responseText = data.candidates[0].content.parts[0].text;
         let parsedResponse;
-
         try {
             const jsonStartIndex = responseText.indexOf('{');
             const jsonEndIndex = responseText.lastIndexOf('}') + 1;
@@ -303,9 +271,7 @@ async function sendMessage() {
             console.error("JSON parsing error:", error, responseText);
             return;
         }
-
         let taskPerformedMessage = "";
-
         if (parsedResponse.task && parsedResponse.task.length > 0) {
             parsedResponse.task.forEach(taskCommand => {
                 switch (taskCommand.action) {
@@ -340,19 +306,14 @@ async function sendMessage() {
                 }
             });
         }
-
         let botResponse = parsedResponse.response;
         addBotMessage(taskPerformedMessage, botResponse);
         updateChatHistory("bot", botResponse);
-
     } catch (error) {
         addBotMessage("Error", "Failed to communicate with the API.");
         console.error("API call error:", error);
     }
 }
-
-// --- Helper functions ---
-
 function showDescription(taskId) {
     const taskElement = document.querySelector(`#taskList > div:has(button[onclick="showDescription(${taskId})"])`);
     if (taskElement) {
@@ -362,22 +323,17 @@ function showDescription(taskId) {
         }
     }
 }
-
 function editTaskPrompt(taskId) {
     const task = TASKS.find((t) => t.id === taskId);
     if (!task) return;
-
     const newName = prompt("Enter the new task name:", task.name);
     const newEmoji = prompt("Enter the new emoji:", task.emoji);
     const newDescription = prompt("Enter the new description", task.description);
-
     if (newName !== null || newEmoji !== null || newDescription != null) {
         editTask(taskId, newName, newEmoji, newDescription);
         addBotMessage("Edited Task", `Task "${newName}" edited successfully`);
     }
 }
-
-// Initial tasks (for demonstration)
 addTask("Grocery Shopping", "🛒", "Buy milk, eggs, bread, and cheese", null, 'user');
 addTask("Book Doctor Appointment", "👨‍⚕️", "Schedule a check-up", null, 'user');
 addTask("Pay Bills", "💸", "Pay electricity and internet bills", null, 'user');
