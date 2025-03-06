@@ -24,7 +24,7 @@ This is a task management application with an AI assistant to help you manage yo
 1.  **Clone the repository:**
 
     ```bash
-    git clone [your repository URL]
+    git clone https://github.com/Bhargavxyz738/Task-Management-Agent.git
     ```
 
 2.  **Open `index.html` in your web browser.**  No server is required for basic functionality.
@@ -68,6 +68,4 @@ The application provides the following visual feedback:
 Contributions are welcome!  Please submit a pull request with your proposed changes.
 
 ## License
-
-
 Lazy CSS is open-source and released under the [MIT License](LICENSE).
