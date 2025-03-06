@@ -69,4 +69,5 @@ Contributions are welcome!  Please submit a pull request with your proposed chan
 
 ## License
 
-[Your License] (e.g., MIT License)
+
+Lazy CSS is open-source and released under the [MIT License](LICENSE).
